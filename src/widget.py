@@ -17,3 +17,11 @@ def mask_account_card(card_info: Union[str]) -> str:
             return card_info[:space_index] + get_mask_account(number)
     else:
         return "Не корректные данные"
+
+
+def get_date(date: Union[str]) -> str:
+    """
+    :param date: "2024-03-11T02:26:18.671407"
+    :return: "2024.03.11"
+    """
+    return ".".join(date[:10].split("-")[::-1])
