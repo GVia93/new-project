@@ -3,7 +3,7 @@ from typing import Union
 from src.masks import get_mask_account, get_mask_card_number
 
 
-def mask_account_card(card_info: Union[str]) -> str:
+def mask_account_card(card_info: str) -> str:
     """
     Принимает аргумент типа Visa Platinum 1234567890123456 или Счет 12345678901234567890.
     Возвращает строку с замаскированным номером.
@@ -19,7 +19,7 @@ def mask_account_card(card_info: Union[str]) -> str:
         return "Не корректные данные"
 
 
-def get_date(date: Union[str]) -> str:
+def get_date(date: str) -> str:
     """
     :param date: "2024-03-11T02:26:18.671407"
     :return: "2024.03.11"
