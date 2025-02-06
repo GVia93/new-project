@@ -23,7 +23,9 @@ def transaction_descriptions(transactions: List[Dict]) -> Iterator[str]:
     :param transactions: Список словарей с транзакциями.
     :return: Итератор, возвращающий описание каждой операции.
     """
-    return (transaction["description"] for transaction in transactions)
+    for transaction in transactions:
+        if "description" in transaction:
+            yield transaction["description"]
 
 
 def card_number_generator(start: int, end: int) -> Iterator[str]:
