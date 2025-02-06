@@ -1,4 +1,4 @@
-from typing import Iterator, Dict, List
+from typing import Dict, Iterator, List
 
 
 def filter_by_currency(transactions: List[Dict], currency: str) -> Iterator[Dict]:
@@ -10,8 +10,9 @@ def filter_by_currency(transactions: List[Dict], currency: str) -> Iterator[Dict
     :return: Итератор с отфильтрованными транзакциями.
     """
     return (
-        transactions for transactions in transactions
-        if transactions.get('operationAmount',{}).get('currency', {}).get('code') == currency
+        transactions
+        for transactions in transactions
+        if transactions.get("operationAmount", {}).get("currency", {}).get("code") == currency
     )
 
 
@@ -33,4 +34,4 @@ def card_number_generator(start: int, end: int) -> Iterator[str]:
     :param end: Конечный номер карты (до 9999999999999999).
     :return: Итератор строк с номерами карт в формате XXXX XXXX XXXX XXXX.
     """
-    return (' '.join(f'{num:016d}'[i:i+4] for i in range(0, 16, 4)) for num in range(start, end + 1))
+    return (" ".join(f"{num:016d}"[i : i + 4] for i in range(0, 16, 4)) for num in range(start, end + 1))
