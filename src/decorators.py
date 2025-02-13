@@ -1,23 +1,33 @@
 def log(filename="log.txt"):
     """
     Декоратор для логирования вызовов функций и обработке исключений.
-
-    Записывает в указанный файл информацию о вызове функции, включая её имя, аргументы,
-    ключевые аргументы, и результат выполнения или информацию об исключении, если оно возникло.
+    Необязательный аргумент "filename", который определяет имя файла, для записи логов.
+    Если "filename" не задан, то логи выводятся в консоль.
     """
 
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
                 result = func(*args, **kwargs)
-                with open(filename, "a") as f:
-                    f.write(f"Function {func.__name__} was called: {result}\n")
+                log_text = f"Function {func.__name__} was called: {result}\n"
             except Exception as e:
+                log_text = (
+                    f"Function {func.__name__} was called with args {args} and kwargs {kwargs}\n"
+                    f"raised an exception: {e}\n"
+                )
+                if filename:
+                    with open(filename, "a") as f:
+                        f.write(log_text)
+                else:
+                    print(log_text)
+                raise
+
+            if filename:
                 with open(filename, "a") as f:
-                    f.write(
-                        f"Function {func.__name__} was called with args {args} and kwargs {kwargs} raised an exception: {e}\n"
-                    )
-                    raise
+                    f.write(log_text)
+            else:
+                print(log_text)
+
             return result
 
         return wrapper
