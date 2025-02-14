@@ -1,3 +1,6 @@
+import functools
+
+
 def log(filename=None):
     """
     Декоратор для логирования вызовов функций и обработке исключений.
@@ -6,14 +9,14 @@ def log(filename=None):
     """
 
     def decorator(func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             try:
                 result = func(*args, **kwargs)
-                log_text = f"Function {func.__name__} was called: {result}\n"
+                log_text = f"Function {func.__name__} was called: {result}"
             except Exception as e:
                 log_text = (
-                    f"Function {func.__name__} was called with args {args} and kwargs {kwargs}\n"
-                    f"raised an exception: {e}\n"
+                    f"Function {func.__name__} was called with args {args} and kwargs {kwargs} raised an exception: {e}"
                 )
                 if filename:
                     with open(filename, "a") as f:
