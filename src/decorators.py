@@ -13,11 +13,9 @@ def log(filename=None):
         def wrapper(*args, **kwargs):
             try:
                 result = func(*args, **kwargs)
-                log_text = f"Function {func.__name__} was called: {result}"
+                log_text = f"{func.__name__} ok\n"
             except Exception as e:
-                log_text = (
-                    f"Function {func.__name__} was called with args {args} and kwargs {kwargs} raised an exception: {e}"
-                )
+                log_text = f"{func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}\n"
                 if filename:
                     with open(filename, "a") as f:
                         f.write(log_text)
