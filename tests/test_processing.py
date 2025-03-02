@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 import pytest
 
-from src.processing import count_transactions_by_category, filter_by_state, sort_by_date
+from src.processing import count_transactions_by_category, filter_by_description, filter_by_state, sort_by_date
 
 
 @pytest.mark.parametrize(
@@ -84,23 +84,47 @@ def test_filter_by_state(input_list: List[Dict[str, Any]], state: str, expected_
 @pytest.fixture
 def sample_transactions():
     return [
-        {"description": "Перевод организации"},
-        {"description": "Открытие вклада"},
-        {"description": "Перевод с карты на карту"},
+        {"description": "Перевод организации", "amount": 1000},
+        {"description": "Открытие вклада", "amount": 500},
+        {"description": "Перевод с карты на карту", "amount": 200},
     ]
 
 
 @pytest.fixture
 def sample_categories():
-    return ["Перевод организации", "Открытие вклада", "Перевод с карты на карту"]
+    return ["перевод", "вклад"]
 
 
 def test_count_transactions_by_category(sample_transactions, sample_categories):
-    """Тестирует функцию count_transactions_by_category на корректность подсчета транзакций по категориям."""
+    """
+    Тестирует функцию count_transactions_by_category на корректность подсчета транзакций по категориям.
+    """
     expected_result = {
-        "Перевод организации": 1,
-        "Открытие вклада": 1,
-        "Перевод с карты на карту": 1,
+        "перевод": 2,
+        "вклад": 1,
     }
     result = count_transactions_by_category(sample_transactions, sample_categories)
+    assert result == expected_result
+
+
+def test_filter_by_description_transfer(sample_transactions):
+    """
+    Тестирует функцию filter_by_description на корректность фильтрации транзакций по строке 'Перевод'.
+    """
+    search_string = "Перевод"
+    expected_result = [
+        {"description": "Перевод организации", "amount": 1000},
+        {"description": "Перевод с карты на карту", "amount": 200},
+    ]
+    result = filter_by_description(sample_transactions, search_string)
+    assert result == expected_result
+
+
+def test_filter_by_description_empty_string(sample_transactions):
+    """
+    Тестирует функцию filter_by_description на корректность обработки пустой строки поиска.
+    """
+    search_string = ""
+    expected_result = sample_transactions
+    result = filter_by_description(sample_transactions, search_string)
     assert result == expected_result
