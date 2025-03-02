@@ -3,7 +3,7 @@ import pytest
 from src.decorators import log
 
 
-@log(filename="test_log.txt")
+@log(filename="logs/test_log.txt")
 def add(a, b):
     return a + b
 
@@ -31,7 +31,7 @@ def test_log_success(func, args, expected, capsys, log_text):
         assert log_text in captured.out
 
     else:
-        with open("test_log.txt") as f:
+        with open("logs/test_log.txt") as f:
             logs = f.read()
             assert log_text in logs
 
@@ -52,6 +52,6 @@ def test_log_exception(func, args, exception, capsys, log_text):
         captured = capsys.readouterr()
         assert log_text in captured.out
     else:
-        with open("test_log.txt", "r") as f:
+        with open("logs/test_log.txt", "r") as f:
             logs = f.read()
         assert log_text in logs
