@@ -1,6 +1,9 @@
 from unittest.mock import mock_open, patch
 
-from src.utils import load_transactions
+import pandas as pd
+import pytest
+
+from src.utils import load_transactions_csv, load_transactions_excel, load_transactions_json
 
 
 @patch("builtins.open", new_callable=mock_open, read_data='[{"id": 1, "amount": 100}]')
@@ -9,7 +12,7 @@ def test_load_transactions_success(mock_file):
     Тестирует успешную загрузку транзакций из JSON-файла.
     Ожидается, что функция вернет список транзакций, если файл существует и содержит валидный JSON-список.
     """
-    result = load_transactions("dummy_path.json")
+    result = load_transactions_json("dummy_path.json")
     assert result == [{"id": 1, "amount": 100}]
 
 
@@ -19,7 +22,7 @@ def test_load_transactions_file_not_found(mock_file):
     Тестирует обработку случая, когда файл не существует.
     Ожидается, что функция вернет пустой список, если файл не найден.
     """
-    result = load_transactions("nonexistent_file.json")
+    result = load_transactions_json("nonexistent_file.json")
     assert result == []
 
 
@@ -29,7 +32,7 @@ def test_load_transactions_invalid_json(mock_file):
     Тестирует обработку случая, когда JSON в файле некорректен.
     Ожидается, что функция вернет пустой список, если JSON не может быть декодирован.
     """
-    result = load_transactions("invalid.json")
+    result = load_transactions_json("invalid.json")
     assert result == []
 
 
@@ -39,5 +42,88 @@ def test_load_transactions_not_a_list(mock_file):
     Тестирует обработку случая, когда JSON в файле не является списком.
     Ожидается, что функция вернет пустой список, если данные не являются списком.
     """
-    result = load_transactions("not_a_list.json")
+    result = load_transactions_json("not_a_list.json")
+    assert result == []
+
+
+@pytest.fixture
+def valid_transactions_csv():
+    # Данные, которые будут возвращаться при вызове open
+    csv_data = (
+        "date;amount;description\n" "2023-10-01;100;Salary\n" "2023-10-02;-20;Groceries\n" "2023-10-03;-50;Utilities\n"
+    )
+
+    # Ожидаемый результат
+    expected = [
+        {"date": "2023-10-01", "amount": "100", "description": "Salary"},
+        {"date": "2023-10-02", "amount": "-20", "description": "Groceries"},
+        {"date": "2023-10-03", "amount": "-50", "description": "Utilities"},
+    ]
+
+    return csv_data, expected
+
+
+@patch("builtins.open", new_callable=mock_open)
+def test_transactions_csv(mock_file, valid_transactions_csv):
+    """
+    Тестирует успешную загрузку транзакций из CSV-файла.
+    Ожидается, что функция вернет список транзакций.
+    """
+    csv_data, expected = valid_transactions_csv
+    mock_file = mock_open(read_data=csv_data)
+    with patch("builtins.open", mock_file):
+        result = load_transactions_csv("dummy_filename.csv")
+
+    assert result == expected
+
+
+@patch("builtins.open", side_effect=FileNotFoundError)
+def test_transactions_csv_file_not_found(mock_open):
+    """
+    Тестирует обработку случая, когда CSV-файл не существует.
+    Ожидается, что функция вернет пустой список, если файл не найден.
+    """
+    result = load_transactions_csv("dummy_filename.csv")
+    assert result == []
+
+
+@pytest.fixture
+def valid_transactions_excel():
+    # Данные, которые будут возвращаться при вызове pd.read_excel
+    excel_data = [
+        {"date": "2023-10-01", "amount": 100, "description": "Salary"},
+        {"date": "2023-10-02", "amount": -20, "description": "Groceries"},
+        {"date": "2023-10-03", "amount": -50, "description": "Utilities"},
+    ]
+
+    # Ожидаемый результат
+    expected = [
+        {"date": "2023-10-01", "amount": 100, "description": "Salary"},
+        {"date": "2023-10-02", "amount": -20, "description": "Groceries"},
+        {"date": "2023-10-03", "amount": -50, "description": "Utilities"},
+    ]
+
+    return excel_data, expected
+
+
+@patch("pandas.read_excel")
+def test_transactions_excel(mock_read_excel, valid_transactions_excel):
+    """
+    Тестирует успешную загрузку транзакций из Excel-файла.
+    Ожидается, что функция вернет список транзакций.
+    """
+    excel_data, expected = valid_transactions_excel
+    mock_read_excel.return_value = pd.DataFrame(excel_data)
+    result = load_transactions_excel("dummy_filename.xlsx")
+    assert result == expected
+    mock_read_excel.assert_called_once_with("dummy_filename.xlsx")
+
+
+@patch("pandas.read_excel", side_effect=FileNotFoundError)
+def test_transactions_excel_file_not_found(mock_read_excel):
+    """
+    Тестирует обработку случая, когда Excel-файл не существует.
+    Ожидается, что функция вернет пустой список, если файл не найден.
+    """
+    result = load_transactions_excel("dummy_filename.excel")
     assert result == []

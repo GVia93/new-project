@@ -1,7 +1,7 @@
 from src.masks import get_mask_account, get_mask_card_number
 
 
-def mask_account_card(account_card: str) -> str:
+def mask_account_card(account_card: str) -> str | None:
     """
     Маскирует номер карты или банковского счета в заданном формате.
 
@@ -22,16 +22,16 @@ def mask_account_card(account_card: str) -> str:
     :return: Замаскированный номер карты/счета или "Не корректные данные" в случае ошибки.
     """
     if " " not in account_card:
-        return "Не корректные данные"
+        return None
 
     space_index = account_card.rfind(" ") + 1
     number = account_card[space_index:].replace("-", "")
 
     if not number.isdigit():
-        return "Не корректные данные"
+        return None
 
     if len(number) not in (15, 16, 19, 20):
-        return "Не корректные данные"
+        return None
 
     if len(number) == 20:
         return account_card[:space_index] + get_mask_account(number)
